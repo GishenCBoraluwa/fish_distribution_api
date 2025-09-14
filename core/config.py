@@ -4,11 +4,18 @@ Configuration settings for Fish Distribution Optimization API
 from functools import lru_cache
 from typing import Optional
 from pydantic_settings import BaseSettings
-from pydantic import Field
+from pydantic import Field, ConfigDict
 
 
 class Settings(BaseSettings):
     """Application settings with environment variable support"""
+    
+    # Use modern Pydantic 2.x configuration
+    model_config = ConfigDict(
+        env_file=".env",
+        case_sensitive=False,
+        extra="ignore"  # This allows extra environment variables to be ignored
+    )
     
     # API Configuration
     app_name: str = "Fish Distribution Optimization API"
@@ -22,7 +29,7 @@ class Settings(BaseSettings):
     workers: int = 1
     
     # Security
-    secret_key: str = Field(..., description="Secret key for JWT tokens")
+    secret_key: str = Field(default="your-secret-key-change-in-production", description="Secret key for JWT tokens")
     access_token_expire_minutes: int = 60 * 24 * 8  # 8 days
     
     # Rate Limiting
@@ -34,6 +41,7 @@ class Settings(BaseSettings):
     
     # Redis Configuration (for caching and rate limiting)
     redis_url: str = "redis://localhost:6379"
+    redis_password: Optional[str] = None
     cache_expire_seconds: int = 3600  # 1 hour
     
     # Optimization Parameters
@@ -49,10 +57,6 @@ class Settings(BaseSettings):
     # Logging
     log_level: str = "INFO"
     log_format: str = "json"
-    
-    class Config:
-        env_file = ".env"
-        case_sensitive = False
 
 
 @lru_cache()

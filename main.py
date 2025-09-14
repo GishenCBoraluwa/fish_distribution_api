@@ -12,9 +12,7 @@ from fastapi.responses import JSONResponse
 import uvicorn
 
 from app.core.config import get_settings
-from app.core.exceptions import setup_exception_handlers
-from app.api.v1.router import api_router
-from app.utils.logging import setup_logging
+from app.api.v1.router import api_router  # UNCOMMENTED THIS LINE
 
 # Global variables for tracking
 start_time = time.time()
@@ -25,12 +23,12 @@ settings = get_settings()
 async def lifespan(app: FastAPI):
     """Application lifespan management"""
     # Startup
-    setup_logging()
+    print(f"Starting {settings.app_name} v{settings.app_version}")
     
     yield
     
     # Shutdown
-    # Any cleanup code goes here
+    print("Shutting down application...")
 
 
 # Create FastAPI application
@@ -57,10 +55,7 @@ app.add_middleware(
     allowed_hosts=["*"]  # Allow all hosts for development
 )
 
-# Setup exception handlers
-setup_exception_handlers(app)
-
-# Include API routes
+# Include API routes - UNCOMMENTED THIS LINE
 app.include_router(api_router, prefix=settings.api_v1_str)
 
 
@@ -89,7 +84,23 @@ async def health_check():
     return {
         "status": "healthy",
         "timestamp": datetime.utcnow(),
-        "uptime_seconds": round(time.time() - start_time, 2)
+        "uptime_seconds": round(time.time() - start_time, 2),
+        "redis_configured": settings.redis_url is not None,
+        "debug_mode": settings.debug
+    }
+
+
+@app.get("/api/v1/test")
+async def test_endpoint():
+    """Test endpoint to verify API is working"""
+    return {
+        "message": "API is working correctly!",
+        "settings": {
+            "app_name": settings.app_name,
+            "version": settings.app_version,
+            "debug": settings.debug,
+            "redis_configured": bool(settings.redis_url)
+        }
     }
 
 
