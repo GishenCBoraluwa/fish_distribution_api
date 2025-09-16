@@ -25,7 +25,7 @@ class Settings(BaseSettings):
     
     # Server Configuration
     host: str = "0.0.0.0"
-    port: int = 8000
+    port: int = 8001
     workers: int = 1
     
     # Security
@@ -40,7 +40,7 @@ class Settings(BaseSettings):
     google_maps_api_key: Optional[str] = None
     
     # Redis Configuration (for caching and rate limiting)
-    redis_url: str = "redis://localhost:6379"
+    redis_url: str = "redis://localhost:6377"
     redis_password: Optional[str] = None
     cache_expire_seconds: int = 3600  # 1 hour
     
